@@ -1,0 +1,22 @@
+# 依赖清单 —— pip install -r requirements.txt
+# 国内网络慢：pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# Web 框架
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+
+# 数据库
+sqlalchemy>=2.0.0
+psycopg[binary]>=3.1.0          # Postgres 3.x 驱动（SQLAlchemy 2.0 用它）
+alembic>=1.13.0                # 迁移（预留，本项目先手动建表）
+
+# LLM / Agent
+openai>=1.30.0                  # Agnes 走 OpenAI 兼容协议
+tenacity>=8.0.0
+langgraph>=0.2.0                # Agent 编排框架
+langchain-core>=0.3.0
+
+# 工具/配置
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+PyYAML>=6.0

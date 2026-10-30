@@ -1,0 +1,13 @@
+# 凭证/本地配置,绝不进 git
+.env
+# Python
+__pycache__/
+*.pyc
+.venv/
+# Node
+node_modules/
+dist/
+# 评测产物(报告每次重新生成)
+backend/evals/report.json
+# 日志
+*.log

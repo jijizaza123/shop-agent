@@ -79,6 +79,28 @@ class AgentTrace(Base):
     trace: Mapped[str] = mapped_column(Text, default="")   # JSON: 节点级 trace
 
 
+class AgentMemory(Base):
+    """Agent 记忆, 两层:
+    - 短期: kind='session', 按 session_id 存最近 N 轮对话(多轮上下文)
+    - 长期: kind='preference', 存用户稳定偏好(预算/品类/品牌), 下次注入 system
+    user_key 演示用固定 'user_demo', 真实项目换成登录用户 id。"""
+    __tablename__ = "agent_memory"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    user_key: Mapped[str] = mapped_column(String(64), default="user_demo", index=True)
+    session_id: Mapped[str] = mapped_column(String(64), default="", index=True)
+    kind: Mapped[str] = mapped_column(String(16), default="session")   # session / preference
+    content: Mapped[str] = mapped_column(Text)                        # 对话原文 或 偏好 JSON
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id, "user_key": self.user_key, "session_id": self.session_id,
+            "kind": self.kind, "content": self.content,
+            "created_at": str(self.created_at),
+        }
+
+
 def get_session() -> Session:
     from sqlalchemy.orm import sessionmaker
     return sessionmaker(bind=engine)()

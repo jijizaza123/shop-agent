@@ -15,6 +15,11 @@ SEED = [
     ("RTX 4060 8G",   "显卡", "NVIDIA", 2599, 12, "8GB GDDR6 / 165W / 8K 光追 / 135T 算力"),
     ("RTX 4070 12G",  "显卡", "NVIDIA", 3999, 8,  "12GB GDDR6X / 200W / 4K 电竞 / DLSS3"),
     ("RX 7800 XT",    "显卡", "AMD",    4299, 5,  "16GB GDDR6 / 263W / 4K 高帧 / FSRR"),
+    # 显卡补充(覆盖入门/中端/高端/超高端)
+    ("RTX 3050 8G",   "显卡", "NVIDIA", 1699, 30, "8GB GDDR6 / 130W / 1080P 入门 / 低功耗"),
+    ("RTX 4060 Ti 16G","显卡", "NVIDIA", 3399, 9,  "16GB GDDR6 / 165W / 2K 甜点卡 / 显存大"),
+    ("RTX 4080 Super","显卡", "NVIDIA", 8999, 3,  "16GB GDDR6X / 320W / 4K 高刷 / 旗舰性能"),
+    ("RTX 4090 24G",  "显卡", "NVIDIA", 13999, 2, "24GB GDDR6X / 450W / 8K / 顶级创作卡"),
     # CPU
     ("i5-14600K",     "CPU",  "Intel",  1899, 20, "14 核 20 线程 / 5.3GHz / LGA1700 / 无核显"),
     ("i7-14700K",     "CPU",  "Intel",  3199, 10, "20 核 28 线程 / 5.6GHz / LGA1700 / 高主频"),
@@ -40,14 +45,20 @@ SEED = [
 def run() -> int:
     Base.metadata.create_all(engine)
     s = get_session()
-    existing = s.query(Product).count()
-    if existing:
-        print(f"[seed] 已存在 {existing} 个商品,跳过。")
-        return 0
+    # 增量: 按商品名去重, 已存在的跳过, 新补的写入(支持多次跑 seed)
+    existing = {p.name for p in s.query(Product.name).all()}
+    added = 0
     for n, c, b, p, st, sp in SEED:
+        if n in existing:
+            continue
         s.add(Product(name=n, category=c, brand=b, price=p, stock=st, spec=sp))
+        added += 1
     s.commit()
-    print(f"[seed] 写入 {len(SEED)} 个商品 OK")
+    s.close()
+    if added == 0:
+        print(f"[seed] 无新增, 现有 {len(existing)} 个商品")
+    else:
+        print(f"[seed] 新增 {added} 个, 现有 {len(existing)} -> {len(existing)+added}")
     return 0
 
 

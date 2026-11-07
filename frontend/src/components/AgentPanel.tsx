@@ -18,6 +18,8 @@ export default function AgentPanel() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [busy, setBusy] = useState(false);
   const [expanded, setExpanded] = useState<string[]>([]);
+  // 同一面板生命周期内固定一个 session_id, 让后端短期记忆接得上多轮
+  const [sessionId, setSessionId] = useState(() => `web-${Date.now()}`);
 
   const send = async () => {
     const m = input.trim();
@@ -26,7 +28,7 @@ export default function AgentPanel() {
     setInput("");
     setBusy(true);
     try {
-      const r = await agentChat(m);
+      const r = await agentChat(m, sessionId);
       setMsgs((prev) => [
         ...prev,
         { role: "agent", content: r.answer, meta: r },
@@ -156,6 +158,7 @@ export default function AgentPanel() {
               onClick={() => {
                 setMsgs([]);
                 setExpanded([]);
+                setSessionId(`web-${Date.now()}`); // 清空 = 开新会话
               }}
             >
               清空

@@ -1,13 +1,23 @@
 import { useEffect, useState } from "react";
-import { Card, List, Input, Select, Spin, Tag, Button } from "antd";
-import { listProducts, getCategories, type Product } from "../api/client";
+import {
+  Button, Card, Input, List, Select, Spin, Tag, message,
+} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import {
+  listProducts, getCategories, addToCart, type Product,
+} from "../api/client";
 
-export default function ProductList() {
+interface Props {
+  onCartChanged: () => void;
+}
+
+export default function ProductList({ onCartChanged }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
   const [cats, setCats] = useState<string[]>([]);
   const [cat, setCat] = useState("");
   const [kw, setKw] = useState("");
   const [loading, setLoading] = useState(false);
+  const [adding, setAdding] = useState<number | null>(null);
 
   useEffect(() => {
     getCategories().then(setCats).catch(() => {});
@@ -20,6 +30,19 @@ export default function ProductList() {
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
   }, [kw, cat]);
+
+  const add = async (p: Product) => {
+    setAdding(p.id);
+    try {
+      await addToCart(p.id, 1);
+      message.success(`已加入购物车: ${p.name}`);
+      onCartChanged();
+    } catch (e: any) {
+      message.error(e?.response?.data?.detail ?? "加入失败");
+    } finally {
+      setAdding(null);
+    }
+  };
 
   return (
     <Card title="商品列表">
@@ -39,6 +62,7 @@ export default function ProductList() {
           options={cats.map((c) => ({ label: c, value: c }))}
         />
       </div>
+
       {loading ? (
         <Spin style={{ display: "block", textAlign: "center", padding: 40 }} />
       ) : (
@@ -47,18 +71,34 @@ export default function ProductList() {
           dataSource={products}
           renderItem={(p) => (
             <List.Item>
-              <Card size="small" title={`${p.name}`} extra={<Tag color="blue">{p.brand}</Tag>}>
-                <div style={{ fontSize: 12, color: "#888", marginBottom: 4 }}>
-                  {p.category}
-                </div>
-                <div style={{ fontSize: 13, marginBottom: 6, color: "#555" }}>
-                  {p.spec}
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span style={{ color: "#d4380d", fontWeight: 600 }}>¥{p.price}</span>
-                  <Tag color={p.stock > 5 ? "green" : "orange"}>库存 {p.stock}</Tag>
-                </div>
-              </Card>
+              <div style={{ width: "100%" }}>
+                <Card
+                  size="small"
+                  title={p.name}
+                  extra={<Tag color="blue">{p.brand}</Tag>}
+                >
+                  <div style={{ fontSize: 12, color: "#888", marginBottom: 4 }}>
+                    {p.category}
+                  </div>
+                  <div style={{ fontSize: 13, marginBottom: 8, color: "#555" }}>
+                    {p.spec}
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                    <span style={{ color: "#d4380d", fontWeight: 600 }}>¥{p.price}</span>
+                    <Tag color={p.stock > 5 ? "green" : "orange"}>库存 {p.stock}</Tag>
+                  </div>
+                  <Button
+                    type="primary"
+                    size="small"
+                    icon={<PlusOutlined />}
+                    block
+                    loading={adding === p.id}
+                    onClick={() => add(p)}
+                  >
+                    加入购物车
+                  </Button>
+                </Card>
+              </div>
             </List.Item>
           )}
         />

@@ -9,5 +9,8 @@ node_modules/
 dist/
 # 评测产物(报告每次重新生成)
 backend/evals/report.json
+backend/evals/report.mock.json
+# 截图/临时图
+*.png
 # 日志
 *.log

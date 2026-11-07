@@ -175,7 +175,46 @@ SCHEMAS = {
 for _name, _sch in SCHEMAS.items():
     register_tool(_name, globals()[_name], _sch)
 
-# 便捷索引
+# ============================================================================
+# 工具 ⑤ search_knowledge: RAG 检索选购知识库(领域知识/搭配建议/售后)
+# 区别于 search_products: 那个查"商品数据", 这个查"选购经验知识"。
+# 面试点: 这是 Agentic RAG —— Agent 自己决定"什么时候该查知识库", 而非固定 RAG 管道。
+# ============================================================================
+from app.agent.rag import retriever
+
+
+def search_knowledge(query: str = "", top_k: int = 3) -> str:
+    """在选购知识库里检索, 返回带来源的 chunk(供 LLM 基于知识回答 + 引用溯源)。"""
+    if not query:
+        return "(请提供检索问题)"
+    hits = retriever.search(query, top_k=top_k)
+    if not hits:
+        return "(知识库里没检索到相关内容)"
+    lines = []
+    for i, h in enumerate(hits, 1):
+        lines.append(f"[{i}] ({h['source']}/{h['section']}) {h['text']}")
+    lines.append("(回答时请基于以上内容, 并标注引用 [n])")
+    return "\n".join(lines)
+
+
+SCHEMAS["search_knowledge"] = {
+    "type": "function",
+    "function": {
+        "name": "search_knowledge",
+        "description": "在选购知识库中检索领域知识/搭配建议/售后政策。用户问'怎么选/什么参数好/保修多久/5000 怎么配'这类经验性问题时用, 别用它查具体商品价格(那个用 search_products)。",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "检索问题, 如 '入门剪辑显卡怎么选'"},
+                "top_k": {"type": "integer", "description": "返回几条, 默认 3"},
+            },
+            "required": ["query"],
+        },
+    },
+}
+register_tool("search_knowledge", search_knowledge, SCHEMAS["search_knowledge"])
+
+# 便捷索引(含新工具)
 TOOL_SCHEMAS = make_tool_schemas(list(SCHEMAS.keys()))
 
 

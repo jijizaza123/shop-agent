@@ -11,15 +11,17 @@ router = APIRouter()
 
 class ChatIn(BaseModel):
     message: str
-    history: list = []   # 可选: 带历史对话(当前简化,只用最后一轮)
+    session_id: str = ""     # 同一会话带同一个 id, 短期记忆才接得上
+    user_key: str = "user_demo"
 
 
 @router.post("/agent/chat")
 def chat(payload: ChatIn):
     """跑一次 Agent 对话。返回:
-    { answer, tool_results, fallback_used, trace, latency_ms, tokens_in, tokens_out }
+    { answer, tool_results, fallback_used, trace, latency_ms, tokens_in, tokens_out, session_id }
     """
-    out = run_agent(payload.message)
+    out = run_agent(payload.message, user_key=payload.user_key,
+                    session_id=payload.session_id)
 
     # 落 trace 表(可观测)
     s = get_session()
@@ -44,6 +46,8 @@ def chat(payload: ChatIn):
         "fallback_used": out.get("fallback_used", False),
         "trace": out.get("trace", []),
         "latency_ms": out.get("latency_ms", 0),
+        "llm_ms": out.get("_llm_ms", 0),          # 真实 LLM 往返耗时(区别于编排)
+        "laziness": any(t.get("laziness") for t in out.get("trace", [])),   # 最终是否仍是偷懒
         "tokens_in": out.get("tokens_in", 0),
         "tokens_out": out.get("tokens_out", 0),
         "session_id": out.get("session_id", ""),

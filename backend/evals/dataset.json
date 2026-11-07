@@ -4,13 +4,13 @@
     {"input": "5000 元内的 CPU", "expect_tools": ["search_products"], "expect_answer_keywords": ["CPU"]},
     {"input": "RTX 4060 库存", "expect_tools": ["check_stock"], "expect_answer_keywords": ["库存"]},
     {"input": "帮我配一套 5000 元以内的入门剪辑电脑, 重点 CPU 和内存", "expect_tools": ["search_products"], "expect_answer_keywords": ["CPU", "内存"]},
-    {"input": "i5-14600K 多少钱", "expect_tools": ["search_products"], "expect_answer_keywords": ["i5"]},
+    {"input": "i5-14600K 多少钱", "expect_tools": ["search_products"], "expect_answer_keywords": ["i5", "结果"]},
     {"input": "DDR5 内存有什么", "expect_tools": ["search_products"], "expect_answer_keywords": ["内存"]},
-    {"input": "1T 硬盘价格", "expect_tools": ["search_products"], "expect_answer_keywords": ["硬盘"]},
+    {"input": "1T 硬盘价格", "expect_tools": ["search_products"], "expect_answer_keywords": ["硬盘", "结果"]},
     {"input": "全塔机箱有哪些", "expect_tools": ["search_products"], "expect_answer_keywords": ["机箱"]},
     {"input": "850W 电源库存", "expect_tools": ["check_stock"], "expect_args_note": "需要 product_id, 模型需先查再调"},
     {"input": "帮我买 1 个 i5-14600K 和 1 条 32G 内存", "expect_tools": ["create_order", "calculate_total"], "expect_answer_keywords": ["订单"]},
-    {"input": "算下 2 个 RTX 4060 + 1 个 i7-14700K 总价", "expect_tools": ["calculate_total"], "expect_answer_keywords": ["合计"]},
+    {"input": "算下 2 个 RTX 4060 + 1 个 i7-14700K 总价", "expect_tools": ["calculate_total"], "expect_answer_keywords": ["合计", "结果"]},
     {"input": "有没有便宜点的显卡", "expect_tools": ["search_products"], "expect_answer_keywords": ["显卡"]},
     {"input": "240 水冷还有货吗", "expect_tools": ["check_stock"], "expect_answer_keywords": ["库存"]},
     {"input": "给我推荐一套 8000 元的电竞配置", "expect_tools": ["search_products"], "expect_answer_keywords": ["配置"]},
@@ -19,6 +19,9 @@
     {"input": "电源 1000W 库存", "expect_tools": ["check_stock"], "expect_answer_keywords": ["库存"]},
     {"input": "帮我下单 1 个 2T 硬盘", "expect_tools": ["create_order"], "expect_answer_keywords": ["订单"]},
     {"input": "CPU 和内存预算 3000 怎么配", "expect_tools": ["search_products"], "expect_answer_keywords": ["CPU", "内存"]},
+    {"input": "入门剪辑显卡怎么选", "expect_tools": ["search_knowledge"], "expect_answer_keywords": ["4060"]},
+    {"input": "显卡保修多久", "expect_tools": ["search_knowledge"], "expect_answer_keywords": ["年"]},
+    {"input": "i7-14700K 散热怎么选", "expect_tools": ["search_knowledge"], "expect_answer_keywords": ["水冷"]},
     {"input": "散热器有哪些", "expect_tools": ["search_products"], "expect_answer_keywords": ["散热"]}
   ]
 }
